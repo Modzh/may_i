@@ -1,5 +1,5 @@
 """
-WSGI config for may_i_bot project.
+WSGI config for mayifckyoubot project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "may_i_bot.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mayifckyoubot.settings")
 
 application = get_wsgi_application()
