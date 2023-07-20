@@ -8,3 +8,7 @@
  - `source env/bin/activate`
  - `pip install -r may_i/requirements.txt`
  - `export $(grep -v '^#' .env | xargs); python3 may_i/may_i_bot/manage.py runbot`
+
+### Deployment
+
+ - `git push heroku main:main`
