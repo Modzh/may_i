@@ -10,8 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
+import typing as ty
 from pathlib import Path
 
+import dj_database_url
 import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,6 +42,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_extensions",
+    "rest_framework",
+    "constance.backends.database",
+    "constance",
+    "tinymce",
     "bot",
 ]
 
@@ -76,13 +84,12 @@ WSGI_APPLICATION = "mayifckyoubot.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 
+DEFAULT_DATABASE = dj_database_url.parse(
+    os.getenv("DATABASE_URL", "sqlite:///" + (BASE_DIR / "db.sqlite3").as_posix()),
+    conn_max_age=os.getenv("DATABASE_CONNECTION_MAX_AGE", 600),
+)
+DATABASES = {"default": DEFAULT_DATABASE}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -107,11 +114,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -125,4 +129,12 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Django + Heroku
+
 django_heroku.settings(locals())
+
+# Constance
+
+CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
+CONSTANCE_CONFIG: ty.Dict[str, ty.Tuple[ty.Any, str, ty.Union[ty.Type, str]]] = {}
+CONSTANCE_ADDITIONAL_FIELDS = {}

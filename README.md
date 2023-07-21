@@ -6,8 +6,12 @@
  - Obtain .env file
  - `virtualenv env --python=python3.12`
  - `source env/bin/activate`
- - `pip install -r may_i/requirements.txt`
- - `export $(grep -v '^#' .env | xargs); python3 may_i/may_i_bot/manage.py runbot`
+ - `pip install -r requirements.txt`
+ - `cd may_i/mayifckyoubot`
+
+Run web service with: `export $(grep -v '^#' ../.env | xargs); gunicorn mayifckyoubot.wsgi`
+
+Run bot with: `export $(grep -v '^#' ../.env | xargs); python3 may_i/may_i_bot/manage.py runbot`
 
 ### Deployment
 
