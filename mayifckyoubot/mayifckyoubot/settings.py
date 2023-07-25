@@ -16,6 +16,7 @@ from pathlib import Path
 
 import dj_database_url
 import django_heroku
+from bot.localize import Language
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -111,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
+# ht'tps://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
@@ -136,5 +137,19 @@ django_heroku.settings(locals())
 # Constance
 
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
-CONSTANCE_CONFIG: ty.Dict[str, ty.Tuple[ty.Any, str, ty.Union[ty.Type, str]]] = {}
-CONSTANCE_ADDITIONAL_FIELDS = {}
+CONSTANCE_CONFIG: ty.Dict[str, ty.Tuple[ty.Any, str, ty.Union[ty.Type, str]]] = {
+    "default_language": (
+        Language.EN,
+        "Default language for new users",
+        "default_language_select",
+    )
+}
+CONSTANCE_ADDITIONAL_FIELDS = {
+    "default_language_select": [
+        "django.forms.fields.ChoiceField",
+        {
+            "widget": "django.forms.Select",
+            "choices": [(lang, lang) for lang in Language],
+        },
+    ],
+}

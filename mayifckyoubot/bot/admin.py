@@ -1,10 +1,14 @@
 from django.contrib import admin
 
-from .models import Question
+from .models import Document
 
 
-@admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
-    list_display = ("id", "text", "is_first_question", "previous_question")
-    raw_id_fields = ["previous_question"]
+@admin.register(Document)
+class DocumentAdmin(admin.ModelAdmin):
+    list_display = (
+        "tag",
+        "language",
+        "text",
+    )
+    raw_id_fields = []
     readonly_fields = ["id"]
