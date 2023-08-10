@@ -1,3 +1,2 @@
-web: cd mayifckyoubot/ && gunicorn mayifckyoubot.wsgi
-migrate: cd mayifckyoubot/ && python manage.py migrate
-worker: cd mayifckyoubot/ && python manage.py runbot
+web: cd mayifckyoubot/ && python manage.py migrate && gunicorn mayifckyoubot.wsgi
+worker: cd mayifckyoubot/ && python manage.py migrate && python manage.py runbot
