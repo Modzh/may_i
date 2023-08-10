@@ -1,6 +1,9 @@
 import logging
 import os
 
+from bot.bot.change_language import change_language, change_language_to_factory
+from bot.bot.logger import DispatchingFormatter
+from bot.localize import Language
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -29,10 +32,22 @@ from .utils import translate as t
 
 TELEGRAM_BOT_TOKEN = os.environ.get("MAY_I_TELEGRAM_BOT_TOKEN")
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
 logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger(__package__).setLevel(logging.DEBUG)
+
+handler = logging.StreamHandler()
+handler.setFormatter(
+    DispatchingFormatter(
+        {
+            __package__: logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - @%(username)s - %(message)s"
+            ),
+        },
+        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"),
+    )
+)
+logging.getLogger().addHandler(handler)
+
 
 logger = logging.getLogger(__name__)
 
@@ -62,25 +77,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         message = update.callback_query.message
     else:
         return None
-    await message.reply_text(await t("Main menu", language), reply_markup=reply_markup)
+    await message.reply_text(
+        await t(f"Main menu: {language}", language), reply_markup=reply_markup
+    )
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Sends the help message"""
     language = context.user_data["language"]
     await update.message.reply_text(await t("Help", language))
-
-
-# async def main_menu(update: Update, context: CallbackContext) -> None:
-#     query = update.callback_query
-#     await query.answer()
-#
-#     await {
-#         "start_test": start_test,
-#         "change_language": change_language,
-#         "change_language_en": change_language_to_factory(Language.EN, start),
-#         "change_language_ru": change_language_to_factory(Language.RU, start),
-#     }[query.data]
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -101,6 +106,21 @@ def main() -> None:
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(
+        CallbackQueryHandler(change_language, pattern="^change_language$")
+    )
+    application.add_handler(
+        CallbackQueryHandler(
+            change_language_to_factory(Language.RU, start),
+            pattern="^change_language_ru$",
+        )
+    )
+    application.add_handler(
+        CallbackQueryHandler(
+            change_language_to_factory(Language.EN, start),
+            pattern="^change_language_en$",
+        )
+    )
     conv_handler = ConversationHandler(
         entry_points=[CallbackQueryHandler(start_test, pattern="^start_test$")],
         states={
@@ -110,7 +130,12 @@ def main() -> None:
                     pattern=f"^q{QUESTION_1}_answer_.*$",
                 )
             ],
-            QUESTION_2: [MessageHandler(filters.TEXT, question_factory(QUESTION_2))],
+            QUESTION_2: [
+                CallbackQueryHandler(
+                    question_factory(QUESTION_2),
+                    pattern=f"^q{QUESTION_2}_answer_.*$",
+                )
+            ],
             QUESTION_3: [
                 MessageHandler(filters.TEXT, question_factory(QUESTION_3)),
             ],

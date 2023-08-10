@@ -6,17 +6,22 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 
-async def get_user_context(username: str) -> dict:
+async def get_default_user_context(username: str) -> dict:
     return {
         "answers": {},
         "language": await sync_to_async(lambda: config.default_language.value)(),
-    }  # TODO: add TelegramUserContext model
+    }
 
 
 async def restore_user_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user_data = await get_user_context(update.effective_user.username)
-    for key in user_data:
-        context.user_data[key] = user_data[key]
+    # TODO: add TelegramUserContext model
+    default_user_data = await get_default_user_context(update.effective_user.username)
+    for key in default_user_data:
+        context.user_data[key] = (
+            context.user_data[key]
+            if key in context.user_data
+            else default_user_data[key]
+        )
 
 
 async def translate(key: str, language: Language) -> str:
